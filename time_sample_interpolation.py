@@ -11,7 +11,7 @@ New points are inserted between two original points if their time distance is lo
 strictly increasing ordered values!
 @param new_time_frequency: the new time frequency to interpolate points. Expressed in the same units as the sampling time stamps in the 3rd
 column of the first parameter
-@return: an array with the same structure, wisth new points inserted to respect tne new sampling time frequence
+@return: an array with the same structure, with new points inserted to respect the new sampling time frequency
 @author: Elöd Egyed-Zsigmond
 """
 def timeSampleInterpolationPolinomial(x_y_t_array, new_time_frequency):

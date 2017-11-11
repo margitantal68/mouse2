@@ -14,6 +14,7 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # SESSION_CUT = 1
+# modeling unit: SEQUENCE of ACTIONS
 def main_ACTION_SEQUENCE():
     st.SESSION_CUT = 1
     st.CASE = 'training'
@@ -24,11 +25,13 @@ def main_ACTION_SEQUENCE():
     rd.process_files(st.CASE)
     tc.NUM_NEGATIVE_SAMPLES_PER_CLASS = 70
     tc.NUM_POSITIVE_SAMPLES = 630
+    # in case of this modeling unit (sequence of actions), from each test session we extract exactly one feature vector
     tc.evaluate_test_actions2(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME)
     return
 
 
 # SESSION_CUT = 2
+# modeling unit: ACTION
 def main_ACTION():
     st.SESSION_CUT = 2
     print("***Computing training features")
@@ -51,7 +54,8 @@ def main_ACTION():
 
 
 # SESSION_CUT = 2
-def main_ACTION2():
+# modeling unit: ACTION
+def main_ACTION2(NUMACTIONS):
     st.SESSION_CUT = 2
     print("***Computing training features")
     st.CASE = 'training'
@@ -63,8 +67,9 @@ def main_ACTION2():
     tc.NUM_NEGATIVE_SAMPLES_PER_CLASS = 200
     tc.NUM_POSITIVE_SAMPLES = 1800
     if st.EVAL_TEST_UNIT == 0:
+        # evaluates only the test sessions having at least NUMACTIONS actions
+        tc.evaluate_test_session_having_at_least(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME, NUMACTIONS)
         # evaluation: all actions from a session
-        tc.evaluate_test_session_having_at_least(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME, 50)
         # tc.evaluate_test_session(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME)
     else:
         # evaluation: action by action
@@ -73,7 +78,11 @@ def main_ACTION2():
     return
 
 
-
+# plots all sessions from a folder
+# @param case: training OR test
+# @param toSave:
+#        True: plots are not shown but saved in PNG and EPS formats
+#        False: plots are shown on the display
 def plot_all ( case, toSave ):
     if case == 'training':
         feature_filename = st.TRAINING_FEATURE_FILENAME
@@ -107,12 +116,14 @@ def plot_all ( case, toSave ):
 
 
 # main_ACTION_SEQUENCE()
-# main_ACTION()
-main_ACTION2()
+main_ACTION()
+
+
 
 # plot_all("test", False)
 # plot_all("training", False)
 
+# pp.plotROCs()
 
 
 # usertestscores.csv
@@ -123,26 +134,3 @@ main_ACTION2()
 # pp.plotUserHistograms()
 
 
-
-
-# # OLD  main
-# def main( case ):
-#     if case == 'training':
-#         print("Compute training features")
-#         rd.process_files( case )
-#         twoclass_classification.evaluate_training(st.TRAINING_FEATURE_FILENAME)
-#     else:
-#         print("Compute test features")
-#         rd.process_files( case )
-#         if st.SESSION_CUT == 2:
-#             if st.EVAL_TEST_UNIT==0:
-#                 # evaluation: all actions from a session
-#                 twoclass_classification.evaluate_test_session(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME)
-#             else:
-#                 # evaluation: action by action
-#                 twoclass_classification.evaluate_test_actions(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME, st.NUM_EVAL_ACTIONS )
-#         else:
-#             # SESSION_CUT=1, each test session --> one feature vector in the test feature file
-#             twoclass_classification.evaluate_test_actions2(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME)
-#             # twoclass_classification.evaluate_test_actions(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME, 1)
-#     return

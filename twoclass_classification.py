@@ -187,7 +187,7 @@ def create_binary_classifiers( feature_filename ):
         dict [ classid ] = rf
     return dict
 
-# Computes score for the sequence of actions belonging to a test session
+# Computes one score for all the actions belonging to a test session
 def evaluate_test_session( training_feat_file, test_feat_file):
     #  create 2-class classifiers
     classifiers = create_binary_classifiers(training_feat_file)
@@ -211,6 +211,8 @@ def evaluate_test_session( training_feat_file, test_feat_file):
     sessionCounter = 0
     for name, group in sessions:
         sessionCounter += 1
+        if sessionCounter % 100 == 0:
+            print("Sessioncounter: " + str(sessionCounter))
         array = numpy.array(group)
         n = array.shape[0]
         probs = []
@@ -252,6 +254,8 @@ def evaluate_test_actions( training_feat_file, test_feat_file, num_actions):
     sessionCounter = 0
     for name, group in sessions:
         sessionCounter += 1
+        if sessionCounter % 100 == 0:
+            print("Sessioncounter: "+str(sessionCounter))
         array = numpy.array(group)
         n = array.shape[0]
         classid = array[0, numFeatures - 1]
@@ -358,7 +362,8 @@ def evaluate_test_session_having_at_least( training_feat_file, test_feat_file, n
     userscores.close()
     print("Test AUC:" + str(computeAUC("output/testscores.csv")))
     used = 816 - unused
-    print("Num sessions: "+str(used))
+    print("Num sessions: "+
+          str(used))
     return
 
 
