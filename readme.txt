@@ -1,5 +1,5 @@
 Preconditions for Python:
-Anaconda Python Interpretes
+Python 3.6.1 |Anaconda custom (64-bit)
 
 
 PYTHON:
