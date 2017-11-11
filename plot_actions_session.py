@@ -139,7 +139,7 @@ def plot_sesssion(feature_file, userid, sessionid):
     plt.show()
     return
 
-def plot_all_actions_sesssion(feature_file, userid, sessionid):
+def plot_all_actions_sesssion(feature_file, userid, sessionid, toSave):
     print(feature_file)
     featdata = pd.read_csv(feature_file)
     session = featdata['session']
@@ -147,7 +147,7 @@ def plot_all_actions_sesssion(feature_file, userid, sessionid):
     n_from = featdata['n_from']
     n_to = featdata['n_to']
     numActions = len(session)
-    print("Num. actions: "+str(numActions))
+    # print("Num. actions in the feature file: "+str(numActions))
 
     if feature_file.find('test') != -1:
         path= st.BASE_FOLDER+st.TEST_FOLDER+'/'+userid+'/'
@@ -164,20 +164,24 @@ def plot_all_actions_sesssion(feature_file, userid, sessionid):
     actionCounter = 0
 
     fig = plt.figure()
-    title=str(userid)+' session: '+str(sessionid)
+
     # iterate through feature file
     mm = mpatches.Patch(color='red', label='Mouse Move - MM')
-    pc = mpatches.Patch(color='blue', label='Right Click - RC')
+    pc = mpatches.Patch(color='blue', label='Point Click - PC')
     dd = mpatches.Patch(color='green', label='Drag&Drop - DD')
 
 
     plt.legend(handles=[mm, pc, dd])
+    plt.axis([0, 2100, 0, 1200])
 
+    plotCounter = 0
+    publicLabel = False
     while actionCounter < numActions:
         # print( int(session[actionCounter]) )
         if ( int(session[actionCounter]) != int(sessionid) ):
             actionCounter += 1
             continue
+        publicLabel = True
         start_index = n_from[actionCounter]
         stop_index = n_to[actionCounter]
 
@@ -194,7 +198,7 @@ def plot_all_actions_sesssion(feature_file, userid, sessionid):
         yo = y[start_index:stop_index]
         to = t[start_index:stop_index]
 
-        # print(xo)
+
 
         xo = [int(e) for e in xo]
         yo = [int(e) for e in yo]
@@ -208,23 +212,38 @@ def plot_all_actions_sesssion(feature_file, userid, sessionid):
                 yo[i] = yo[i - 1]
 
 
-        if type_of_action[actionCounter] == 1:
-            # MM - Mouse Move
-            plt.plot(xo, yo, linestyle='-', color='red', marker='*', markersize=1.5, linewidth=0.5)
+        if not containsZeros(xo, yo):
+            if type_of_action[actionCounter] == 1:
+                # MM - Mouse Move
+                plt.plot(xo, yo, linestyle='-', color='red', marker='*', markersize=1.5, linewidth=0.5)
+            else:
+                if type_of_action[actionCounter] == 3:
+                    # PC - Point Click
+                    plt.plot(xo, yo, linestyle='-', color='blue', marker='*', markersize=1.5, linewidth=0.5)
+                else:
+                    # DD - Drag and Drop
+                    plt.plot(xo, yo, linestyle='-', color='green', marker='*', markersize=1.5, linewidth=0.5)
+
+                # plt.legend(['orig'], loc='best')
+            plotCounter += 1
+        actionCounter+=1
+
+    if publicLabel:
+        title = str(userid) + ', session: ' + str(sessionid)+", numActions: "+str(plotCounter)
+        print(title+" "+str(plotCounter))
+        plt.title(title)
+        if toSave == True:
+            plt.savefig(userid + "_" + sessionid + '.png')
+            plt.savefig(userid + "_" + sessionid + '.eps')
         else:
-             if type_of_action[actionCounter] == 3:
-                 # PC - Point Click
-                 plt.plot(xo, yo, linestyle='-', color='blue', marker='*', markersize=1.5, linewidth=0.5)
-             else:
-                 # DD - Drag and Drop
-                 plt.plot(xo, yo, linestyle='-', color='green', marker='*', markersize=1.5, linewidth=0.5)
-
-        plt.axis([0, 2100, 0, 1200])
-        # plt.legend(['orig'], loc='best')
-        actionCounter += 1
-
-
-    plt.title(title)
-    plt.show()
+            plt.show()
+    else:
+        print('session: ' + str(sessionid)+" is a private test file")
     return
 
+def containsZeros( x, y):
+    n = len(x)
+    for i in range(1, n):
+        if (x[i] == 0 or y[i] == 0 ):
+            return True
+    return False

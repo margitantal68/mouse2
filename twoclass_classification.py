@@ -311,6 +311,55 @@ def evaluate_test_actions2( training_feat_file, test_feat_file ):
     print("Test AUC:"+ str(computeAUC("output/testscores.csv")))
     return
 
+# Computes score for the sequence of actions belonging to a test session
+# only sessions containing at least numactions
+def evaluate_test_session_having_at_least( training_feat_file, test_feat_file, numactions):
+    #  create 2-class classifiers
+    classifiers = create_binary_classifiers(training_feat_file)
+    for c in classifiers:
+        print(c)
+    # read test feature file
+
+    dataset = pd.read_csv(test_feat_file)
+    # number of features used for classification: session and islegal are not used for classification
+    # ..., class, session, n_from, n_to, islegal
+    numFeatures = int(dataset.shape[1]) - 4
+    numSamples = int(dataset.shape[0])
+
+    print("Computing scores for test sessions. Be patient ...")
+    userscores = open("output/usertestscores.csv", "w")
+    scores = open("output/testscores.csv", "w")
+    print("Num samples to evaluate: "+ str(numSamples))
+
+    # Group by
+    sessions = dataset.groupby('session')
+    sessionCounter = 0
+    unused = 0
+    for name, group in sessions:
+        sessionCounter += 1
+        array = numpy.array(group)
+        n = array.shape[0]
+        # print("numactions "+str(n))
+        if n< numactions:
+            unused += 1
+            continue
+        probs = []
+        classid = array[0, numFeatures - 1]
+        label = array[0, numFeatures + 3]
+        for i in range(0,n):
+            resprob = classifiers[classid].predict_proba(array[i, 0:numFeatures-1])
+            probs.append( resprob[0, 1] )
+        prob = numpy.mean(probs)
+        scores.write( str(label)+"," + str(prob) + "\n")
+        userscores.write( str(classid) + ',' + str(label) + ',' + str(resprob[0, 1]) + "\n")
+
+        # print( '\t'+str(sessionCounter) +', '+str(prob))
+    scores.close()
+    userscores.close()
+    print("Test AUC:" + str(computeAUC("output/testscores.csv")))
+    used = 816 - unused
+    print("Num sessions: "+str(used))
+    return
 
 
 
@@ -325,65 +374,3 @@ def read_labels():
 
 
 
-# Computes score for the sequence of actions belonging to a test session
-# old version
-# def evaluate_test_session( training_feat_file, test_feat_file, min_actions ):
-#     #  create 2-class classifiers
-#     classifiers = create_binary_classifiers(training_feat_file)
-#     for c in classifiers:
-#         print(c)
-#     # read test feature file
-#
-#     dataset = pd.read_csv(test_feat_file)
-#     # number of features used for classification: session and islegal are not used for classification
-#     # ..., class, session, n_from, n_to, islegal
-#     numFeatures = int(dataset.shape[1]) - 4
-#     numSamples = int(dataset.shape[0])
-#
-#     array = dataset.values
-#     X = array[:, 0:numFeatures - 1]
-#     #  class
-#     Y = array[:, numFeatures - 1]
-#     session = array[:, numFeatures]
-#     labels = array[:, numFeatures + 3]
-#
-#     print("Computing scores for test sessions ...")
-#     prevSession = session[0]
-#     scores = open("output/testscores.csv", "w")
-#     probs = []
-#     count_dropped_sessions = 0
-#     print("Num samples to evaluate: "+ str(numSamples))
-#     sessionCounter = 0
-#     for i in range(0, numSamples):
-#         classid = Y[i]
-#         resprob = classifiers[classid].predict_proba(X[i, :])
-#
-#         if session[i] == prevSession:
-#             probs.append(resprob[0, 1])
-#         else:
-#             sessionCounter += 1
-#             # labels[ i -1 ] - islegal
-#             # if the session contains only one feature vector
-#             if (len(probs) == 0):
-#                 probs.append(resprob[0, 1])
-#
-#             if len(probs) >= min_actions:
-#                 prob = numpy.mean(probs)
-#                 scores.write( str(labels[i-1])+"," + str(prob) + "\n")
-#                 print( str(sessionCounter) +', '+str(prob))
-#
-#             else:
-#                 count_dropped_sessions += 1
-#                 # print("Dropped session: "+str(prevSession))
-#             prevSession = session[i]
-#             probs = []
-#     # last session
-#     sessionCounter += 1
-#     prob = numpy.mean(probs)
-#     scores.write(str(labels[numSamples-1]) + "," + str(prob) + "\n")
-#     print(str(sessionCounter) + ', ' + str(prob))
-#
-#     scores.close()
-#     print("Test AUC:" + str(computeAUC("output/testscores.csv")))
-#     print("Dropped sessions: "+str(count_dropped_sessions))
-#     return

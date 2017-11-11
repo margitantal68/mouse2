@@ -1,7 +1,7 @@
 import plot_paper
 import balabit_statistics as bs
 import plot_actions_session
-
+import os
 
 import settings as st
 import twoclass_classification as tc
@@ -51,33 +51,69 @@ def main_ACTION():
 
 
 # SESSION_CUT = 2
-# def main_ACTION_USER_ACC_TRAINING():
-#     st.SESSION_CUT = 2
-#     print("***Computing training features")
-#     st.CASE = 'training'
-#     rd.process_files( st.CASE )
-#     print('***Evaluating on the test set')
-#     tc.NUM_NEGATIVE_SAMPLES_PER_CLASS = 200
-#     tc.NUM_POSITIVE_SAMPLES = 1800
-#     tc.evaluate_training( st.TRAINING_FEATURE_FILENAME )
-#     return
-#
-#
-# # SESSION_CUT = 1
-# def main_ACTION_SEQUENCE_USER_ACC_TRAINING():
-#     st.SESSION_CUT = 1
-#     print("***Computing training features")
-#     st.CASE = 'training'
-#     rd.process_files( st.CASE )
-#     print('***Evaluating on the test set')
-#     tc.NUM_NEGATIVE_SAMPLES_PER_CLASS = 70
-#     tc.NUM_POSITIVE_SAMPLES = 630
-#     tc.evaluate_training( st.TRAINING_FEATURE_FILENAME )
-#     return
+def main_ACTION2():
+    st.SESSION_CUT = 2
+    print("***Computing training features")
+    st.CASE = 'training'
+    rd.process_files( st.CASE )
+    print('***Evaluating on the test set')
+    st.CASE = 'test'
+    rd.process_files(st.CASE)
+    print('EVAL_TEST_UNIT: '+str(st.EVAL_TEST_UNIT))
+    tc.NUM_NEGATIVE_SAMPLES_PER_CLASS = 200
+    tc.NUM_POSITIVE_SAMPLES = 1800
+    if st.EVAL_TEST_UNIT == 0:
+        # evaluation: all actions from a session
+        tc.evaluate_test_session_having_at_least(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME, 50)
+        # tc.evaluate_test_session(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME)
+    else:
+        # evaluation: action by action
+        tc.evaluate_test_actions(st.TRAINING_FEATURE_FILENAME, st.TEST_FEATURE_FILENAME,
+                                                      st.NUM_EVAL_ACTIONS)
+    return
+
+
+
+def plot_all ( case, toSave ):
+    if case == 'training':
+        feature_filename = st.TRAINING_FEATURE_FILENAME
+    else:
+        feature_filename = st.TEST_FEATURE_FILENAME
+
+    if case == 'test':
+        directory = os.fsencode(st.BASE_FOLDER + st.TEST_FOLDER)
+    else:
+        directory = os.fsencode(st.BASE_FOLDER + st.TRAINING_FOLDER)
+    for fdir in os.listdir(directory):
+        dirname = os.fsdecode(fdir)
+        print('User: ' + dirname)
+        if case == 'test':
+            userdirectory = st.BASE_FOLDER + st.TEST_FOLDER + '/' + dirname
+        else:
+            userdirectory = st.BASE_FOLDER + st.TRAINING_FOLDER + '/' + dirname
+        # is_legal is not used in case of training
+        is_legal = 0
+        userid = dirname[4:len(dirname)]
+        for file in os.listdir(userdirectory):
+            fname = os.fsdecode(file)
+            filename = userdirectory + '/' + os.fsdecode(file)
+            sessionid = str(fname[8:len(fname)])
+            print(dirname+" : "+sessionid)
+            plot_actions_session.plot_all_actions_sesssion(feature_filename, dirname, sessionid, toSave)
+
+    return
+
+
 
 
 # main_ACTION_SEQUENCE()
 # main_ACTION()
+main_ACTION2()
+
+# plot_all("test", False)
+# plot_all("training", False)
+
+
 
 # usertestscores.csv
 # ua.user_accuracies('output/usertestscores.csv')
@@ -86,8 +122,7 @@ def main_ACTION():
 # pp.plotScoresCase1()
 # pp.plotUserHistograms()
 
-# plot_actions_session.plot_all_actions_sesssion('output/balabit_features_test.csv', 'user12', '1178629549')
-plot_actions_session.plot_all_actions_sesssion+('output/balabit_features_training.csv', 'user12', '2144641057')
+
 
 
 # # OLD  main
