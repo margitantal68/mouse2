@@ -120,17 +120,4 @@ main_ACTION()
 
 
 
-# plot_all("test", False)
-# plot_all("training", False)
-
-# pp.plotROCs()
-
-
-# usertestscores.csv
-# ua.user_accuracies('output/usertestscores.csv')
-
-# bs.session_action_statistics(st.TRAINING_FEATURE_FILENAME)
-# pp.plotScoresCase1()
-# pp.plotUserHistograms()
-
 
