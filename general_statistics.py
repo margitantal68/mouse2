@@ -40,13 +40,13 @@ def max(array, start, stop):
     return maxValue
 
 # [start, stop)
-def min(array, start, stop):
+def min_not_null(array, start, stop):
     n = stop - start
     if n-1 <= 0:
         return 0
     minValue = array[start]
     for i in range(start, stop):
-        if array[i] < minValue:
+        if array[i] != 0 and array[i] < minValue:
             minValue = array[ i ]
     return minValue
 

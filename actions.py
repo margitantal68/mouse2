@@ -100,14 +100,17 @@ def computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to):
     mean_vx = gs.mean(vx, 0, len(vx))
     sd_vx = gs.stdev(vx, 0, len(vx))
     max_vx = gs.max(vx, 0, len(vx))
+    min_vx = gs.min_not_null(vx, 0, len(vx))
 
     mean_vy = gs.mean(vy, 0, len(vy))
     sd_vy = gs.stdev(vy, 0, len(vy))
     max_vy = gs.max(vy, 0, len(vy))
+    min_vy = gs.min_not_null(vy, 0, len(vy))
 
     mean_v = gs.mean(v, 0, len(v))
     sd_v = gs.stdev(v, 0, len(v))
-    max_v = gs.max(vy, 0, len(v))
+    max_v = gs.max(v, 0, len(v))
+    min_v = gs.min_not_null(v, 0, len(v))
 
     # angular velocity
     omega = [0]
@@ -122,6 +125,7 @@ def computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to):
     mean_omega = gs.mean(omega, 0, len(omega))
     sd_omega = gs.stdev(omega, 0, len(omega))
     max_omega = gs.max(omega, 0, len(omega))
+    min_omega = gs.min_not_null(omega, 0, len(omega))
 
     # acceleration
     a = [ 0 ]
@@ -140,6 +144,7 @@ def computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to):
     mean_a = gs.mean(a, 0, len(a) )
     sd_a = gs.stdev(a, 0, len(a) )
     max_a = gs.max(a, 0, len(a) )
+    min_a = gs.min_not_null(a, 0, len(a))
 
     # jerk
     j = [0]
@@ -153,7 +158,7 @@ def computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to):
     mean_jerk = gs.mean(j, 0, len(j))
     sd_jerk = gs.stdev(j, 0, len(j))
     max_jerk = gs.max(j, 0, len(j))
-
+    min_jerk = gs.min_not_null(j, 0, len(j))
 
     # curvature: defined by Gamboa&Fred, 2004
     # numCriticalPoints
@@ -172,6 +177,7 @@ def computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to):
     mean_curv = gs.mean( c, 0, len(c))
     sd_curv = gs.stdev(c, 0, len(c))
     max_curv = gs.max(c, 0, len(c))
+    min_curv = gs.min_not_null(c, 0, len(c))
 
     # time
     time = float(t[n - 1]) - float(t[0])
@@ -195,25 +201,30 @@ def computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to):
     largest_deviation = largestDeviation(x,y)
 
 
-    return str(actionCode) + ',' + str(trajectory) + ',' + str(time) + ',' + str(direction) + ','+\
+    result = str(actionCode) + ',' + str(trajectory) + ',' + str(time) + ',' + str(direction) + ','+\
                       str(straightness)+ ','+ str(n)+','+str(sumOfAngles)+','+\
-                      str(mean_curv) + "," + str(sd_curv) + "," + str(max_curv) + "," +\
-                      str(mean_omega)+","+str(sd_omega)+","+str(max_omega)+","+\
+                      str(mean_curv) + "," + str(sd_curv) + "," + str(max_curv) + "," +str(min_curv)+","+\
+                      str(mean_omega)+","+str(sd_omega)+","+str(max_omega)+","+str(min_omega)+","+\
                       str(largest_deviation)+","+\
                       str(distEndToEndLine)+","+str(numCriticalPoints)+","+\
-                      str(mean_vx)   + "," + str(sd_vx)   + "," +str(max_vx) + "," +\
-                      str(mean_vy)   + "," + str(sd_vy)   + "," +str(max_vy) + "," +\
-                      str(mean_v)    + "," + str(sd_v)    + "," +str(max_v)  + "," +\
-                      str(mean_a)    + "," + str(sd_a)    + "," + str(max_a) + "," +\
-                      str(mean_jerk) + "," + str(sd_jerk) + "," + str(max_jerk) + "," +\
+                      str(mean_vx)   + "," + str(sd_vx)   + "," +str(max_vx) + "," +str(min_vx)+","+\
+                      str(mean_vy)   + "," + str(sd_vy)   + "," +str(max_vy) + "," +str(min_vy)+","+\
+                      str(mean_v)    + "," + str(sd_v)    + "," +str(max_v)  + "," +str(min_v)+","+\
+                      str(mean_a)    + "," + str(sd_a)    + "," + str(max_a) + "," +str(min_a)+","+\
+                      str(mean_jerk) + "," + str(sd_jerk) + "," + str(max_jerk) + "," +str(min_jerk)+","+\
                       str(accTimeAtBeginning)+","+\
                       str(n_from)+","+str(n_to)+\
                       "\n"
+    print("computeActionFeatures")
+    print(result)
+    return result
 
 # computer features from an action [n_from, n_to]
 # and writes into the action file
 def printAction(x, y, t, actionCode, action_file, n_from, n_to):
     result = computeActionFeatures(x, y, t, actionCode, action_file, n_from, n_to)
+    print("printAction")
+    print(result)
     if result != None:
         action_file.write(result)
     return

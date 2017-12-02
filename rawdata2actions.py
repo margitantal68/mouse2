@@ -122,9 +122,9 @@ def printCsvHeaderAggregation(feature_file):
 # print CSV header, case SESSION_CUT = 2
 def printCsvHeaderAction(feature_file, case):
     feature_file.write("type_of_action,traveled_distance_pixel,elapsed_time,direction_of_movement,");
-    feature_file.write("straightness,num_points,sum_of_angles,mean_curv,sd_curv,max_curv,mean_omega,sd_omega,max_omega,");
+    feature_file.write("straightness,num_points,sum_of_angles,mean_curv,sd_curv,max_curv,min_curv,mean_omega,sd_omega,max_omega,min_omega,");
     feature_file.write("largest_deviation,dist_end_to_end_line,num_critical_points,")
-    feature_file.write("mean_vx,sd_vx,max_vx,mean_vy,sd_vy,max_vy,mean_v,sd_v,max_v,mean_a,sd_a,max_a,mean_jerk,sd_jerk,max_jerk,a_beg_time,class,session,n_from,n_to")
+    feature_file.write("mean_vx,sd_vx,max_vx,min_vx,mean_vy,sd_vy,max_vy,min_vy,mean_v,sd_v,max_v,min_v,mean_a,sd_a,max_a,min_a,mean_jerk,sd_jerk,max_jerk,min_jerk,a_beg_time,class,session,n_from,n_to")
     if case == 'test':
         feature_file.write(", islegal")
     feature_file.write("\n");
@@ -250,7 +250,7 @@ def printSession2(userid, feature_file, label, sessionid, case):
     action_file = open(st.ACTION_FILENAME, "r")
     reader = csv.DictReader(action_file)
     for row in reader:
-        # print( row["type_of_action"] )
+        print( row )
         feature_file.write( row["type_of_action"])
         feature_file.write(",")
         feature_file.write(row["traveled_distance_pixel"])
@@ -272,12 +272,16 @@ def printSession2(userid, feature_file, label, sessionid, case):
         feature_file.write(",")
         feature_file.write(row["max_curv"])
         feature_file.write(",")
+        feature_file.write(row["min_curv"])
+        feature_file.write(",")
 
         feature_file.write(row["mean_omega"])
         feature_file.write(",")
         feature_file.write(row["sd_omega"])
         feature_file.write(",")
         feature_file.write(row["max_omega"])
+        feature_file.write(",")
+        feature_file.write(row["min_omega"])
         feature_file.write(",")
 
         feature_file.write(row["largest_deviation"])
@@ -293,12 +297,16 @@ def printSession2(userid, feature_file, label, sessionid, case):
         feature_file.write(",")
         feature_file.write(row["max_vx"])
         feature_file.write(",")
+        feature_file.write(row["min_vx"])
+        feature_file.write(",")
 
         feature_file.write(row["mean_vy"])
         feature_file.write(",")
         feature_file.write(row["sd_vy"])
         feature_file.write(",")
         feature_file.write(row["max_vy"])
+        feature_file.write(",")
+        feature_file.write(row["min_vy"])
         feature_file.write(",")
 
         feature_file.write(row["mean_v"])
@@ -307,6 +315,8 @@ def printSession2(userid, feature_file, label, sessionid, case):
         feature_file.write(",")
         feature_file.write(row["max_v"])
         feature_file.write(",")
+        feature_file.write(row["min_v"])
+        feature_file.write(",")
 
         feature_file.write(row["mean_a"])
         feature_file.write(",")
@@ -314,12 +324,16 @@ def printSession2(userid, feature_file, label, sessionid, case):
         feature_file.write(",")
         feature_file.write(row["max_a"])
         feature_file.write(",")
+        feature_file.write(row["min_a"])
+        feature_file.write(",")
 
         feature_file.write(row["mean_jerk"])
         feature_file.write(",")
         feature_file.write(row["sd_jerk"])
         feature_file.write(",")
         feature_file.write(row["max_jerk"])
+        feature_file.write(",")
+        feature_file.write(row["min_jerk"])
         feature_file.write(",")
 
         feature_file.write(row["a_beg_time"])

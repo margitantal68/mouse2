@@ -17,7 +17,7 @@ OFFSET = NUM_ACTIONS
 # SESSION_CUT = 2 # modeling unit - action
 ##############################
 SESSION_CUT = 2
-EVAL_TEST_UNIT = 1 #  0: test data are evaluated by session (class probabilities are averaged for all the actions belonging to the test session); 1 -- test data are evaluated by actions (class probability is computed for each action);
+EVAL_TEST_UNIT = 0 #  0: test data are evaluated by session (class probabilities are averaged for all the actions belonging to the test session); 1 -- test data are evaluated by actions (class probability is computed for each action);
 NUM_EVAL_ACTIONS = 30 # how many actions are used for decision - only for EVAL_TEST_UNIT = 1
 
 ##############################
